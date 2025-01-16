@@ -1,85 +1,86 @@
-import { cleanInput, startREPL } from "./repl";
 import { describe, expect, test, vi } from "vitest";
-import { Readable, Writable } from "stream";
+import { cleanInput, writeLine, startREPL } from "./repl";
 
-describe.each([
-	{
-		input: "  hello  world  ",
-		expected: ["hello", "world"]
-	},
-	{
-		input: "singleword",
-		expected: ["singleword"]
-	},
-	{
-		input: "  multiple   spaces  ",
-		expected: ["multiple", "spaces"]
-	},
-	{
-		input: "",
-		expected: [""]
-	}
-])("cleanInput($input)", ({ input, expected }) => {
-	test(`Expected: ${expected}`, () => {
+describe("cleanInput", () => {
+	test.each([
+		{ input: "  hello  world  ", expected: ["hello", "world"] },
+		{ input: "singleword", expected: ["singleword"] },
+		{ input: "  multiple   spaces  ", expected: ["multiple", "spaces"] },
+		{ input: "", expected: [""] },
+	])("should clean input \"$input\"", ({ input, expected }) => {
+		// Execution
 		const actual = cleanInput(input);
 
-		expect(actual).toHaveLength(expected.length);
-		for (const i in expected) {
-			expect(actual[i]).toBe(expected[i]);
-		}
+		// Assertions
+		expect(actual).toEqual(expected);
+	});
+});
+
+describe("writeLine", () => {
+	test.each([
+		{ input: "Hello, world!", expected: "Hello, world!\n" },
+		{ input: "  Leading spaces", expected: "  Leading spaces\n" },
+		{ input: "\nNewline in input", expected: "\nNewline in input\n" },
+		{ input: "\tTabs in input", expected: "\tTabs in input\n" },
+		{ input: "", expected: "\n" },
+		{ input: "   ", expected: "   \n" },
+	])("should write \"$input\" to stdout", ({ input, expected }) => {
+		// Setup
+		const mockWrite = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+		// Execution
+		writeLine(input);
+
+		// Assertions
+		expect(mockWrite).toHaveBeenCalledWith(expected);
+
+		// Cleanup
+		mockWrite.mockRestore();
 	});
 });
 
 describe("startREPL", () => {
-	test("should output the correct command", async () => {
-		const input = "testcommand\n";
-		const expectedOutput = "Your command was: testcommand\n";
-
-		const mockStdout = new Writable({
-			write(chunk, encoding, callback) {
-				this.emit("data", chunk.toString());
-				callback();
-			}
+	const createMockState = (lineInput: string) => {
+		const mockPrompt = vi.fn();
+		const mockOn = vi.fn((event, callback) => {
+			if (event === "line") callback(lineInput);
 		});
 
-		const mockStdin = new Readable({
-			read() {
-				this.push(input);
-				this.push(null);
-			}
-		});
+		const mockCommands = {
+			help: { callback: vi.fn() },
+		};
 
-		const rl = startREPL(mockStdin, mockStdout);
+		const mockState = {
+			rl: { prompt: mockPrompt, on: mockOn },
+			commands: mockCommands,
+		};
 
-		await new Promise<void>((resolve, reject) => {
-			const timeout = setTimeout(() => {
-				rl.close();
-				reject(new Error("Test timed out waiting for expected output."));
-			}, 2000);
+		return { mockState, mockPrompt, mockOn, mockCommands };
+	};
 
-			const capturedOutput: string[] = [];
-			mockStdout.on("data", (data) => {
-				capturedOutput.push(data);
+	test("should execute a known command", () => {
+		// Setup
+		const { mockState, mockPrompt, mockOn, mockCommands } = createMockState("help");
 
-				if (capturedOutput.some((output) => output.includes(expectedOutput))) {
-					clearTimeout(timeout);
-					rl.close();
-					try {
-						expect(capturedOutput.find((output) => output.includes(expectedOutput)))
-							.toContain(expectedOutput);
-						resolve();
-					} catch (err) {
-						reject(err);
-					}
-				}
-			});
+		// Execution
+		startREPL(mockState as any);
 
-			rl.on("close", () => {
-				clearTimeout(timeout);
-				if (!capturedOutput.some((output) => output.includes(expectedOutput))) {
-					reject(new Error("REPL closed before expected output was validated."));
-				}
-			});
-		});
+		// Assertions
+		expect(mockOn).toHaveBeenCalledWith("line", expect.any(Function));
+		expect(mockCommands.help.callback).toHaveBeenCalledWith(mockState);
+		expect(mockPrompt).toHaveBeenCalledTimes(2);
+	});
+
+	test("should handle unknown commands gracefully", () => {
+		// Setup
+		const { mockState, mockPrompt, mockOn, mockCommands } = createMockState("unknownCommand");
+
+		// Execution
+		startREPL(mockState as any);
+
+		// Assertions
+		expect(mockOn).toHaveBeenCalledWith("line", expect.any(Function));
+		expect(mockCommands.help.callback).not.toHaveBeenCalled();
+		expect(mockPrompt).toHaveBeenCalledTimes(2);
 	});
 });

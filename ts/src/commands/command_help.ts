@@ -1,10 +1,10 @@
 import { writeLine } from "../repl.js";
-import { CLICommand } from "./command";
+import { State } from "../state.js";
 
-export function commandHelp(commands: Record<string, CLICommand>): void {
+export function commandHelp(state: State): void {
 	writeLine("\nUsage:\n");
-	for (const commandName in commands) {
-		const command = commands[commandName];
+	for (const commandName in state.commands) {
+		const command = state.commands[commandName];
 		writeLine(`${command.name}: ${command.description}`);
 	}
 	writeLine();
