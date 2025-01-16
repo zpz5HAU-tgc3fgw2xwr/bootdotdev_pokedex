@@ -5,7 +5,14 @@ export function cleanInput(input: string): string[] {
 	return input.trim().split(/\s+/);
 }
 
+export function writeLine(line = ""): void {
+	process.stdout.write(`${line}\n`);
+}
+
 export function startREPL(stdin: NodeJS.ReadableStream = process.stdin, stout: NodeJS.WritableStream = process.stdout): readline.Interface {
+	writeLine("Welcome to the Pokedex!");
+	writeLine("Type \"help\" for a list of commands.\n");
+
 	const rl = readline.createInterface({
 		input: stdin,
 		output: stout,
@@ -16,7 +23,6 @@ export function startREPL(stdin: NodeJS.ReadableStream = process.stdin, stout: N
 
 	rl.on("line", (line: string) => {
 		const input = cleanInput(line);
-		stout.write(`Your command was: ${input[0].toLowerCase()}\n`);
 		getCommands()[input[0].toLowerCase()]?.callback(getCommands());
 		rl.prompt();
 	});

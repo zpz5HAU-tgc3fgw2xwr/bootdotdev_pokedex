@@ -12,12 +12,12 @@ export function getCommands(): Record<string, CLICommand> {
 		help: {
 			name: "help",
 			description: "Displays a help message",
-			callback: commandHelp,
+			callback: commandHelp
 		},
 		exit: {
 			name: "exit",
 			description: "Exit the Pokedex",
-			callback: commandExit,
+			callback: commandExit
 		}
 	};
 }

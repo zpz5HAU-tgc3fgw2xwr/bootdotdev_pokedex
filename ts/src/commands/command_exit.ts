@@ -1,4 +1,6 @@
+import { writeLine } from "../repl.js";
+
 export function commandExit(): void {
-	process.stdout.write("Closing the Pokedex... Goodbye!\n");
+	writeLine("\nClosing the Pokedex... Goodbye!");
 	process.exit(0);
 }
