@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, beforeEach, vi } from "vitest";
 import { cleanInput, writeLine, startREPL } from "./repl";
 
 describe("cleanInput", () => {
@@ -40,47 +40,59 @@ describe("writeLine", () => {
 });
 
 describe("startREPL", () => {
-	const createMockState = (lineInput: string) => {
-		const mockPrompt = vi.fn();
-		const mockOn = vi.fn((event, callback) => {
-			if (event === "line") callback(lineInput);
-		});
+	let mockState: any;
+	let mockPrompt: ReturnType<typeof vi.fn>;
+	let mockOn: ReturnType<typeof vi.fn>;
+	let mockCommands: any;
 
-		const mockCommands = {
-			help: { callback: vi.fn() },
+	// Setup
+	beforeEach(() => {
+		mockPrompt = vi.fn();
+		mockOn = vi.fn();
+
+		mockCommands = {
+			help: { callback: vi.fn() }
 		};
 
-		const mockState = {
-			rl: { prompt: mockPrompt, on: mockOn },
-			commands: mockCommands,
+		mockState = {
+			rl: {
+				prompt: mockPrompt,
+				on: (event: string, callback: (line: string) => void) => {
+					mockOn(event, callback);
+					if (event === "line") callback("");
+				},
+			},
+			commands: mockCommands
 		};
-
-		return { mockState, mockPrompt, mockOn, mockCommands };
-	};
+	});
 
 	test("should execute a known command", () => {
 		// Setup
-		const { mockState, mockPrompt, mockOn, mockCommands } = createMockState("help");
+		mockOn.mockImplementationOnce((event, callback) => {
+			if (event === "line") { callback("help"); }
+		});
 
 		// Execution
-		startREPL(mockState as any);
+		startREPL(mockState);
 
 		// Assertions
 		expect(mockOn).toHaveBeenCalledWith("line", expect.any(Function));
 		expect(mockCommands.help.callback).toHaveBeenCalledWith(mockState);
-		expect(mockPrompt).toHaveBeenCalledTimes(2);
+		expect(mockPrompt).toHaveBeenCalledTimes(3);
 	});
 
 	test("should handle unknown commands gracefully", () => {
 		// Setup
-		const { mockState, mockPrompt, mockOn, mockCommands } = createMockState("unknownCommand");
+		mockOn.mockImplementationOnce((event, callback) => {
+			if (event === "line") { callback("unknownCommand"); }
+		});
 
 		// Execution
-		startREPL(mockState as any);
+		startREPL(mockState);
 
 		// Assertions
 		expect(mockOn).toHaveBeenCalledWith("line", expect.any(Function));
 		expect(mockCommands.help.callback).not.toHaveBeenCalled();
-		expect(mockPrompt).toHaveBeenCalledTimes(2);
+		expect(mockPrompt).toHaveBeenCalledTimes(3);
 	});
 });
