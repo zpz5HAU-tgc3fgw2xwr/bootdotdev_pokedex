@@ -1,11 +1,10 @@
-import { writeLine } from "../repl.js";
 import { State } from "../state.js";
 
-export function commandHelp(state: State): void {
-	writeLine("\nUsage:\n");
+export async function commandHelp(state: State): Promise<void> {
+	state.wl("\nUsage:\n");
 	for (const commandName in state.commands) {
 		const command = state.commands[commandName];
-		writeLine(`${command.name}: ${command.description}`);
+		state.wl(`${command.name}: ${command.description}`);
 	}
-	writeLine();
+	state.wl();
 }

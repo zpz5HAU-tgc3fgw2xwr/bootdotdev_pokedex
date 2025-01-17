@@ -1,8 +1,7 @@
 import { State } from "../state.js";
-import { writeLine } from "../repl.js";
 
-export function commandExit(state: State): void {
-	writeLine("\nClosing the Pokedex... Goodbye!");
+export async function commandExit(state: State): Promise<void> {
+	state.wl("\nClosing the Pokedex... Goodbye!");
 	state.rl.close();
 	process.exit(0);
 }
