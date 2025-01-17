@@ -43,7 +43,7 @@ describe("initState", () => {
 		expect(mockCreateInterface).toHaveBeenCalledWith({
 			input: mockStdin,
 			output: mockStdout,
-			prompt: "Pokedex > "
+			prompt: "Pokédex > "
 		});
 	});
 
@@ -93,7 +93,7 @@ describe("initState", () => {
 		});
 		expect(state.commands.exit).toEqual({
 			name: "exit",
-			description: "Exit the Pokedex",
+			description: "Exit the Pokédex",
 			callback: commandExit
 		});
 		expect(state.rl).toBeDefined();

@@ -23,7 +23,7 @@ describe("commandHelp", () => {
 			},
 			exit: {
 				name: "exit",
-				description: "Exit the Pokedex",
+				description: "Exit the Pokédex",
 				callback: vi.fn(),
 			},
 		};

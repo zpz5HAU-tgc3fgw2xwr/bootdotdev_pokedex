@@ -31,7 +31,7 @@ describe("commandExit", () => {
 		expect(() => commandExit(state)).toThrow("process.exit was called with code: 0");
 
 		// Assertions
-		expect(mockWriteLine).toHaveBeenCalledWith("\nClosing the Pokedex... Goodbye!");
+		expect(mockWriteLine).toHaveBeenCalledWith("\nClosing the Pokédex... Goodbye!");
 		expect(rlCloseSpy).toHaveBeenCalledOnce();
 		expect(processExitSpy).toHaveBeenCalledOnce();
 		expect(processExitSpy).toHaveBeenCalledWith(0);

@@ -56,7 +56,7 @@ describe("startREPL", () => {
 		startREPL(mockState);
 
 		// Assertions
-		expect(mockState.wl).toHaveBeenCalledWith("Welcome to the Pokedex!");
+		expect(mockState.wl).toHaveBeenCalledWith("Welcome to the Pokédex!");
 		expect(mockState.wl).toHaveBeenCalledWith('Type "help" for a list of commands.\n');
 		expect(mockOn).toHaveBeenCalledWith("line", expect.any(Function));
 		expect(mockCommands.help.callback).toHaveBeenCalledWith(mockState);
@@ -73,7 +73,7 @@ describe("startREPL", () => {
 		startREPL(mockState);
 
 		// Assertions
-		expect(mockState.wl).toHaveBeenCalledWith("Welcome to the Pokedex!");
+		expect(mockState.wl).toHaveBeenCalledWith("Welcome to the Pokédex!");
 		expect(mockState.wl).toHaveBeenCalledWith('Type "help" for a list of commands.\n');
 		expect(mockOn).toHaveBeenCalledWith("line", expect.any(Function));
 		expect(mockCommands.help.callback).not.toHaveBeenCalled();

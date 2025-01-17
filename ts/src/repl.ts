@@ -5,7 +5,7 @@ export function cleanInput(input: string): string[] {
 }
 
 export function startREPL(state: State): void {
-	state.wl("Welcome to the Pokedex!");
+	state.wl("Welcome to the Pokédex!");
 	state.wl("Type \"help\" for a list of commands.\n");
 
 	state.rl.prompt();
@@ -15,12 +15,9 @@ export function startREPL(state: State): void {
 		try {
 			await state.commands[input[0].toLowerCase()].callback(state);
 		} catch (err) {
-			if (err instanceof TypeError) {
-				state.wl(`Unknown command: ${input[0]}`);
-				state.wl(err.message);
-			} else if (err instanceof Error) {
-				state.wl(err.message);
-			}
+			if (err instanceof TypeError) { state.wl(`Unknown command: ${input[0]}`); }
+			else if (err instanceof Error) { state.wl(err.message); }
+			else { state.wl("An unknown error occurred."); }
 		}
 		state.rl.prompt();
 	});
