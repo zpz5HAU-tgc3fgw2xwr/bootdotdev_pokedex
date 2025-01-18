@@ -7,5 +7,5 @@ export async function commandMap(state: State, back = false): Promise<void> {
 				locations.forEach((location) => state.wl(location.name));
 			} else { state.wl("No locations found."); }
 		} else { state.wl(locations.name); }
-	});
+	}).catch(error => state.wl(error.message));
 }

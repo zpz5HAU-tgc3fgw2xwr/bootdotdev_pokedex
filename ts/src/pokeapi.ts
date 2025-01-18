@@ -32,10 +32,7 @@ export class PokeAPI {
 			.then(response => {
 				if (!back) { this.locationIndex++; }
 				return this.cache.add(cacheKey, response.data.results);
-			}).catch(error => {
-				console.error("Error fetching data from API:", error);
-				return [];
-			});
+			}).catch(error => Promise.reject(error));
 	}
 
 	private locationAreasIndex = 0;
@@ -54,9 +51,6 @@ export class PokeAPI {
 			.then(response => {
 				if (!back) { this.locationAreasIndex++; }
 				return this.cache.add(cacheKey, response.data.results);
-			}).catch(error => {
-				console.error("Error fetching data from API:", error);
-				return [];
-			});
+			}).catch(error => Promise.reject(error));
 	}
 }
