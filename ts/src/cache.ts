@@ -26,11 +26,7 @@ export class Cache {
 	}
 
 	stopReapLoop(): void {
-		if (this.#reapIntervalId) {
-			clearInterval(this.#reapIntervalId);
-			console.log("Stopped reaping");
-			console.log(this.#reapIntervalId);
-		}
+		if (this.#reapIntervalId) { clearInterval(this.#reapIntervalId); }
 	}
 
 	#reap(): void {

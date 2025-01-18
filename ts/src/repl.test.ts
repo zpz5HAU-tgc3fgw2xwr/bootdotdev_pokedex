@@ -48,20 +48,24 @@ describe("startREPL", () => {
 
 	test("should execute a known command", () => {
 		// Setup
-		mockOn.mockImplementationOnce((event, callback) => {
-			if (event === "line") { callback("help"); }
+		mockOn.mockImplementation((event, callback) => {
+			if (event === "line") {
+				callback("help");
+				callback("");
+			}
 		});
-
+	
 		// Execution
 		startREPL(mockState);
-
+	
 		// Assertions
 		expect(mockState.wl).toHaveBeenCalledWith("Welcome to the Pokédex!");
-		expect(mockState.wl).toHaveBeenCalledWith('Type "help" for a list of commands.\n');
+		expect(mockState.wl).toHaveBeenCalledWith("Type \"help\" for a list of commands.\n");
 		expect(mockOn).toHaveBeenCalledWith("line", expect.any(Function));
 		expect(mockCommands.help.callback).toHaveBeenCalledWith(mockState);
 		expect(mockPrompt).toHaveBeenCalledTimes(3);
 	});
+	
 
 	test("should handle unknown commands gracefully", () => {
 		// Setup

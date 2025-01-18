@@ -18,44 +18,50 @@ export class PokeAPI {
 
 	private locationIndex = 0;
 	async getLocations(idname: number | string = "", back = false): Promise<Location[] | Location> {
-		let promise = new Promise<Location[]>(() => {});
-		
 		if (typeof idname === "number" && idname < 0) { idname = 0; }
 		if (back && this.locationIndex > 0) { this.locationIndex--; }
 
 		const cacheKey = `${idname}_${this.locationIndex}`;
-		if (!this.cache.get(cacheKey)) {
-			promise = this.axios
-				.get(`${PokeAPI.baseURL}/location/${idname}${PokeAPI.paginationConstructor(this.locationIndex)}`)
-				.then((response) => this.cache.add(cacheKey, response.data.results))
-				.catch((err) => console.error("Error fetching data from API:", err));;
+		const cachedData = this.cache.get(cacheKey) as Location[] | Location;
+		if (cachedData) {
+			if (!back) { this.locationIndex++; }
+			return cachedData;
 		}
 
-		return promise.finally(() => {
-			if (!back) { this.locationIndex++; }
-			return this.cache.get(cacheKey);
-		});
+		return this.axios.get(`${PokeAPI.baseURL}/location/${idname}${PokeAPI.paginationConstructor(this.locationIndex)}`)
+			.then(response => {
+				const data = response.data.results;
+				this.cache.add(cacheKey, data);
+				if (!back) { this.locationIndex++; }
+				return data;
+			}).catch(error => {
+				console.error("Error fetching data from API:", error);
+				return [];
+			});
 	}
 
 	private locationAreasIndex = 0;
 	async getLocationAreas(idname: number | string = "", back = false): Promise<LocationArea[] | LocationArea> {
-		let promise = new Promise<LocationArea[]>(() => {});
-	
 		if (typeof idname === "number" && idname < 0) { idname = 0; }
-		if (back && this.locationIndex > 0) { this.locationIndex--; }
-
-		const cacheKey = `${idname}_${this.locationAreasIndex}`;	
-		if (!this.cache.get(cacheKey)) {
-			promise = this.axios
-				.get(`${PokeAPI.baseURL}/location-area/${idname}${PokeAPI.paginationConstructor(this.locationAreasIndex)}`)
-				.then((response) => this.cache.add(cacheKey, response.data.results))
-				.catch((err) => console.error("Error fetching data from API:", err));
+		if (back && this.locationAreasIndex > 0) { this.locationAreasIndex--; }
+	
+		const cacheKey = `${idname}_${this.locationAreasIndex}`;
+		const cachedData = this.cache.get(cacheKey) as LocationArea[] | LocationArea;
+		if (cachedData) {
+			if (!back) { this.locationAreasIndex++; }
+			return cachedData;
 		}
 	
-		return promise.finally(() => {
-			if (!back) { this.locationAreasIndex++; }
-			return this.cache.get(cacheKey);
-		});
+		return this.axios.get(`${PokeAPI.baseURL}/location-area/${idname}${PokeAPI.paginationConstructor(this.locationAreasIndex)}`)
+			.then(response => {
+				const data = response.data.results;
+				this.cache.add(cacheKey, data);
+				if (!back) { this.locationAreasIndex++; }
+				return data;
+			}).catch(error => {
+				console.error("Error fetching data from API:", error);
+				return [];
+			});
 	}
 	
 }

@@ -53,9 +53,7 @@ export function initState(stdin: NodeJS.ReadableStream = process.stdin, stout: N
 			output: stout,
 			prompt: "Pokédex > "
 		}),
-		wl: (line = "") => {
-			process.stdout.write(`${line}\n`);
-		},
+		wl: (line = "") => { process.stdout.write(`${line}\n`); },
 		pokeapi: new PokeAPI(axios, cache),
 		_cache: cache,
 		_axios: axios

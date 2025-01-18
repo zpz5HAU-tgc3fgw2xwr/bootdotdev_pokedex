@@ -4,7 +4,7 @@ import { initState, State } from "../state";
 import { Writable } from "stream";
 
 describe("commandExit", () => {
-	test("should write the closing message, close readline, and exit process", () => {
+	test("should write the closing message, close readline, and exit process", async () => {
 		// Setup
 		const mockWriteLine = vi.fn();
 
@@ -17,7 +17,7 @@ describe("commandExit", () => {
 
 		const state: State = {
 			...initState(undefined, mockStdout),
-			wl: mockWriteLine
+			wl: mockWriteLine,
 		};
 
 		const rlCloseSpy = vi.spyOn(state.rl, "close");
@@ -27,16 +27,18 @@ describe("commandExit", () => {
 				throw new Error(`process.exit was called with code: ${code}`);
 			}) as typeof process.exit);
 
-		// Execution
-		expect(() => commandExit(state)).toThrow("process.exit was called with code: 0");
+		try {
+			// Execution
+			await expect(commandExit(state)).rejects.toThrow("process.exit was called with code: 0");
 
-		// Assertions
-		expect(mockWriteLine).toHaveBeenCalledWith("\nClosing the Pokédex... Goodbye!");
-		expect(rlCloseSpy).toHaveBeenCalledOnce();
-		expect(processExitSpy).toHaveBeenCalledOnce();
-		expect(processExitSpy).toHaveBeenCalledWith(0);
-
-		// Cleanup
-		processExitSpy.mockRestore();
+			// Assertions
+			expect(mockWriteLine).toHaveBeenCalledWith("\nClosing the Pokédex... Goodbye!");
+			expect(rlCloseSpy).toHaveBeenCalledOnce();
+			expect(processExitSpy).toHaveBeenCalledOnce();
+			expect(processExitSpy).toHaveBeenCalledWith(0);
+		} finally {
+			// Cleanup
+			processExitSpy.mockRestore();
+		}
 	});
 });
