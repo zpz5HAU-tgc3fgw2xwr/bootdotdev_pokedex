@@ -20,6 +20,7 @@ describe("commandCatch", () => {
 			rl: vi.fn() as any,
 			_cache: {} as any,
 			_axios: {} as any,
+			commands: {} as any,
 		};
 	});
 

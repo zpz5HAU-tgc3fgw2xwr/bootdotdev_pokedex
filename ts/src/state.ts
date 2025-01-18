@@ -7,6 +7,7 @@ import { commandHelp } from "./commands/command_help.js";
 import { commandMap } from "./commands/command_map.js";
 import { commandExplore } from "./commands/command_explore.js";
 import { commandExit } from "./commands/command_exit.js";
+import { commandCatch } from "./commands/command_catch.js";
 
 export type CLICommand = {
 	name: string;
@@ -47,6 +48,11 @@ export function initState(stdin: NodeJS.ReadableStream = process.stdin, stout: N
 				name: "explore",
 				description: "Explore a location area",
 				callback: (state, idname) => commandExplore(state, idname)
+			},
+			catch: {
+				name: "catch",
+				description: "Catch a Pokémon",
+				callback: (state, idname) => commandCatch(state, idname)4
 			},
 			exit: {
 				name: "exit",
