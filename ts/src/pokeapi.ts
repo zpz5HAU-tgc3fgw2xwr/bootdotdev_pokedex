@@ -30,10 +30,8 @@ export class PokeAPI {
 
 		return this.axios.get(`${PokeAPI.baseURL}/location/${idname}${PokeAPI.paginationConstructor(this.locationIndex)}`)
 			.then(response => {
-				const data = response.data.results;
-				this.cache.add(cacheKey, data);
 				if (!back) { this.locationIndex++; }
-				return data;
+				return this.cache.add(cacheKey, response.data.results);
 			}).catch(error => {
 				console.error("Error fetching data from API:", error);
 				return [];
@@ -54,14 +52,11 @@ export class PokeAPI {
 	
 		return this.axios.get(`${PokeAPI.baseURL}/location-area/${idname}${PokeAPI.paginationConstructor(this.locationAreasIndex)}`)
 			.then(response => {
-				const data = response.data.results;
-				this.cache.add(cacheKey, data);
 				if (!back) { this.locationAreasIndex++; }
-				return data;
+				return this.cache.add(cacheKey, response.data.results);
 			}).catch(error => {
 				console.error("Error fetching data from API:", error);
 				return [];
 			});
 	}
-	
 }
