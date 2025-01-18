@@ -1,4 +1,4 @@
-# 🐌 Pokédex CLI (TypeScript)
+# 🎮 Pokédex CLI (TypeScript)
 
 This repository contains the **Pokédex CLI** project, developed as part of the [Boot.dev course](https://www.boot.dev/courses/build-pokedex-cli-typescript). The goal of this project is to build an interactive command-line interface for managing a Pokédex, showcasing TypeScript and CLI development skills.
 
