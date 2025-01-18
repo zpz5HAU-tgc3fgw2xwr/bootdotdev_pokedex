@@ -27,18 +27,18 @@ describe("PokeAPI", () => {
 	describe("getLocations", () => {
 		test("should check the cache and call the API if not cached", async () => {
 			// Setup
-			const mockResponse = { data: { results: [{ name: "location1" }] } };
-			const cacheKey = "1_0";
+			const mockResponse = { data: { results: [{ name: "location" }] } };
+			const cacheKey = "locations_0";
 
 			mockCache.get.mockReturnValueOnce(null);
 			mockAxios.get.mockResolvedValueOnce(mockResponse);
 
 			// Execution
-			const result = await pokeAPI.getLocations(1);
+			const result = await pokeAPI.getLocations();
 
 			// Assertions
 			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
-			expect(mockAxios.get).toHaveBeenCalledWith("https://pokeapi.co/api/v2/location/1?limit=20&offset=0");
+			expect(mockAxios.get).toHaveBeenCalledWith("https://pokeapi.co/api/v2/location?limit=20&offset=0");
 			expect(mockCache.add).toHaveBeenCalledWith(cacheKey, mockResponse.data.results);
 			expect(result).toEqual(mockResponse.data.results);
 		});
@@ -46,12 +46,12 @@ describe("PokeAPI", () => {
 		test("should return cached data without calling the API", async () => {
 			// Setup
 			const cachedData = [{ name: "cachedLocation" }];
-			const cacheKey = "1_0";
+			const cacheKey = "locations_0";
 
 			mockCache.get.mockReturnValueOnce(cachedData);
 
 			// Execution
-			const result = await pokeAPI.getLocations(1);
+			const result = await pokeAPI.getLocations();
 
 			// Assertions
 			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
@@ -63,7 +63,7 @@ describe("PokeAPI", () => {
 		test("should handle no value passed in and call the API with default index", async () => {
 			// Setup
 			const mockResponse = { data: { results: [{ name: "locationDefault" }] } };
-			const cacheKey = "_0";
+			const cacheKey = "locations_0";
 
 			mockCache.get.mockReturnValueOnce(null);
 			mockAxios.get.mockResolvedValueOnce(mockResponse);
@@ -73,7 +73,7 @@ describe("PokeAPI", () => {
 
 			// Assertions
 			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
-			expect(mockAxios.get).toHaveBeenCalledWith("https://pokeapi.co/api/v2/location/?limit=20&offset=0");
+			expect(mockAxios.get).toHaveBeenCalledWith("https://pokeapi.co/api/v2/location?limit=20&offset=0");
 			expect(mockCache.add).toHaveBeenCalledWith(cacheKey, mockResponse.data.results);
 			expect(result).toEqual(mockResponse.data.results);
 		});
@@ -85,7 +85,7 @@ describe("PokeAPI", () => {
 
 			// Execution
 			let error: Error | undefined;
-			try { await pokeAPI.getLocations(1); }
+			try { await pokeAPI.getLocations(); }
 			catch (e) { if (e instanceof Error) { error = e; } }
 
 			// Assertions
@@ -99,12 +99,12 @@ describe("PokeAPI", () => {
 		test("should handle back variable to pull from previous cached page", async () => {
 			// Setup
 			const cachedData = [{ name: "prevPageLocation" }];
-			const cacheKey = "1_0";
+			const cacheKey = "locations_0";
 
 			mockCache.get.mockReturnValueOnce(cachedData);
 
 			// Execution
-			const result = await pokeAPI.getLocations(1, true);
+			const result = await pokeAPI.getLocations(true);
 
 			// Assertions
 			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
@@ -116,12 +116,12 @@ describe("PokeAPI", () => {
 		test("should not decrement index below zero when using back", async () => {
 			// Setup
 			const cachedData = [{ name: "firstPageLocation" }];
-			const cacheKey = "1_0";
+			const cacheKey = "locations_0";
 
 			mockCache.get.mockReturnValueOnce(cachedData);
 
 			// Execution
-			const result = await pokeAPI.getLocations(1, true);
+			const result = await pokeAPI.getLocations(true);
 
 			// Assertions
 			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
@@ -135,17 +135,17 @@ describe("PokeAPI", () => {
 		test("should check the cache and call the API if not cached", async () => {
 			// Setup
 			const mockResponse = { data: { results: [{ name: "area1" }] } };
-			const cacheKey = "1_0";
+			const cacheKey = "locationAreas_0";
 
 			mockCache.get.mockReturnValueOnce(null);
 			mockAxios.get.mockResolvedValueOnce(mockResponse);
 
 			// Execution
-			const result = await pokeAPI.getLocationAreas(1);
+			const result = await pokeAPI.getLocationAreas();
 
 			// Assertions
 			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
-			expect(mockAxios.get).toHaveBeenCalledWith("https://pokeapi.co/api/v2/location-area/1?limit=20&offset=0");
+			expect(mockAxios.get).toHaveBeenCalledWith("https://pokeapi.co/api/v2/location-area?limit=20&offset=0");
 			expect(mockCache.add).toHaveBeenCalledWith(cacheKey, mockResponse.data.results);
 			expect(result).toEqual(mockResponse.data.results);
 		});
@@ -153,12 +153,12 @@ describe("PokeAPI", () => {
 		test("should return cached data without calling the API", async () => {
 			// Setup
 			const cachedData = [{ name: "cachedArea" }];
-			const cacheKey = "1_0";
+			const cacheKey = "locationAreas_0";
 
 			mockCache.get.mockReturnValueOnce(cachedData);
 
 			// Execution
-			const result = await pokeAPI.getLocationAreas(1);
+			const result = await pokeAPI.getLocationAreas();
 
 			// Assertions
 			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
@@ -170,7 +170,7 @@ describe("PokeAPI", () => {
 		test("should handle no value passed in and call the API with default index", async () => {
 			// Setup
 			const mockResponse = { data: { results: [{ name: "areaDefault" }] } };
-			const cacheKey = "_0";
+			const cacheKey = "locationAreas_0";
 
 			mockCache.get.mockReturnValueOnce(null);
 			mockAxios.get.mockResolvedValueOnce(mockResponse);
@@ -180,7 +180,7 @@ describe("PokeAPI", () => {
 
 			// Assertions
 			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
-			expect(mockAxios.get).toHaveBeenCalledWith("https://pokeapi.co/api/v2/location-area/?limit=20&offset=0");
+			expect(mockAxios.get).toHaveBeenCalledWith("https://pokeapi.co/api/v2/location-area?limit=20&offset=0");
 			expect(mockCache.add).toHaveBeenCalledWith(cacheKey, mockResponse.data.results);
 			expect(result).toEqual(mockResponse.data.results);
 		});
@@ -192,7 +192,7 @@ describe("PokeAPI", () => {
 
 			// Execution
 			let error: Error | undefined;
-			try { await pokeAPI.getLocations(1); }
+			try { await pokeAPI.getLocations(); }
 			catch (e) { if (e instanceof Error) { error = e; } }
 
 			// Assertions
@@ -206,12 +206,12 @@ describe("PokeAPI", () => {
 		test("should handle back variable to pull from previous cached page", async () => {
 			// Setup
 			const cachedData = [{ name: "prevPageArea" }];
-			const cacheKey = "1_0";
+			const cacheKey = "locationAreas_0";
 
 			mockCache.get.mockReturnValueOnce(cachedData);
 
 			// Execution
-			const result = await pokeAPI.getLocationAreas(1, true);
+			const result = await pokeAPI.getLocationAreas(true);
 
 			// Assertions
 			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
@@ -223,12 +223,12 @@ describe("PokeAPI", () => {
 		test("should not decrement index below zero when using back", async () => {
 			// Setup
 			const cachedData = [{ name: "firstPageArea" }];
-			const cacheKey = "1_0";
+			const cacheKey = "locationAreas_0";
 
 			mockCache.get.mockReturnValueOnce(cachedData);
 
 			// Execution
-			const result = await pokeAPI.getLocationAreas(1, true);
+			const result = await pokeAPI.getLocationAreas(true);
 
 			// Assertions
 			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);

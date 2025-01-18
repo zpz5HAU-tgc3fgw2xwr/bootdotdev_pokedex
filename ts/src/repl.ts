@@ -13,7 +13,7 @@ export function startREPL(state: State): void {
 	state.rl.on("line", async (line: string) => {
 		const input = cleanInput(line);
 		try {
-			await state.commands[input[0].toLowerCase()].callback(state);
+			await state.commands[input[0].toLowerCase()].callback(state, ...input.slice(1));
 		} catch (err) {
 			if (err instanceof TypeError) { state.wl(`Unknown command: ${input[0]}`); }
 			else if (err instanceof Error) { state.wl(err.message); }

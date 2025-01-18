@@ -5,12 +5,13 @@ import { Cache } from "./cache.js";
 import { PokeAPI } from "./pokeapi.js";
 import { commandHelp } from "./commands/command_help.js";
 import { commandMap } from "./commands/command_map.js";
+import { commandExplore } from "./commands/command_explore.js";
 import { commandExit } from "./commands/command_exit.js";
 
 export type CLICommand = {
 	name: string;
 	description: string;
-	callback: (state: State) => Promise<void>;
+	callback: (state: State, ...args: string[]) => Promise<void>;
 };
 
 export type State = {
@@ -35,12 +36,17 @@ export function initState(stdin: NodeJS.ReadableStream = process.stdin, stout: N
 			map: {
 				name: "map",
 				description: "Displays the next page of location areas",
-				callback: commandMap
+				callback: (state) => commandMap(state)
 			},
 			mapb: {
 				name: "mapb",
 				description: "Displays the previous page of location areas",
 				callback: (state) => commandMap(state, true)
+			},
+			explore: {
+				name: "explore",
+				description: "Explore a location area",
+				callback: (state, idname) => commandExplore(state, idname)
 			},
 			exit: {
 				name: "exit",
