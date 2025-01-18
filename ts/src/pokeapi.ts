@@ -16,40 +16,40 @@ export class PokeAPI {
 		this.cache = cache;
 	}
 
-	private locationIndex = 0;
+	private locationIndex = -1;
 	async getLocations(idname: number | string = "", back = false): Promise<Location[] | Location> {
+		const trueIndex = Math.max(0, this.locationIndex + (back ? -1 : 1));
 		if (typeof idname === "number" && idname < 0) { idname = 0; }
-		if (back && this.locationIndex > 0) { this.locationIndex--; }
 
-		const cacheKey = `${idname}_${this.locationIndex}`;
+		const cacheKey = `${idname}_${trueIndex}`;
 		const cachedData = this.cache.get(cacheKey) as Location[] | Location;
 		if (cachedData) {
-			if (!back) { this.locationIndex++; }
+			this.locationIndex = trueIndex;
 			return cachedData;
 		}
 
-		return this.axios.get(`${PokeAPI.baseURL}/location/${idname}${PokeAPI.paginationConstructor(this.locationIndex)}`)
+		return this.axios.get(`${PokeAPI.baseURL}/location/${idname}${PokeAPI.paginationConstructor(trueIndex)}`)
 			.then(response => {
-				if (!back) { this.locationIndex++; }
+				this.locationAreasIndex = trueIndex;
 				return this.cache.add(cacheKey, response.data.results);
 			}).catch(error => Promise.reject(error));
 	}
 
-	private locationAreasIndex = 0;
+	private locationAreasIndex = -1;
 	async getLocationAreas(idname: number | string = "", back = false): Promise<LocationArea[] | LocationArea> {
+		const trueIndex = Math.max(0, this.locationAreasIndex + (back ? -1 : 1));
 		if (typeof idname === "number" && idname < 0) { idname = 0; }
-		if (back && this.locationAreasIndex > 0) { this.locationAreasIndex--; }
 	
-		const cacheKey = `${idname}_${this.locationAreasIndex}`;
+		const cacheKey = `${idname}_${trueIndex}`;
 		const cachedData = this.cache.get(cacheKey) as LocationArea[] | LocationArea;
 		if (cachedData) {
-			if (!back) { this.locationAreasIndex++; }
+			this.locationAreasIndex = trueIndex;
 			return cachedData;
 		}
 	
-		return this.axios.get(`${PokeAPI.baseURL}/location-area/${idname}${PokeAPI.paginationConstructor(this.locationAreasIndex)}`)
+		return this.axios.get(`${PokeAPI.baseURL}/location-area/${idname}${PokeAPI.paginationConstructor(trueIndex)}`)
 			.then(response => {
-				if (!back) { this.locationAreasIndex++; }
+				this.locationAreasIndex = trueIndex;
 				return this.cache.add(cacheKey, response.data.results);
 			}).catch(error => Promise.reject(error));
 	}
