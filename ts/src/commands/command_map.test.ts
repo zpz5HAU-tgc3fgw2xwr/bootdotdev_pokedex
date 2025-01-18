@@ -18,6 +18,7 @@ describe("commandMap", () => {
 			commands: {},
 			rl: vi.fn() as unknown as State["rl"],
 			wl: mockWriteLine,
+			pokedex: {} as any,
 			pokeapi: mockPokeAPI as any,
 			_cache: {} as any,
 			_axios: {} as any,

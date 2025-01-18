@@ -1,13 +1,19 @@
 import Axios from "axios";
 import { AxiosCacheInstance, setupCache } from "axios-cache-interceptor";
 import { createInterface, type Interface } from "readline";
+import { Pokemon } from "pokenode-ts";
+
 import { Cache } from "./cache.js";
 import { PokeAPI } from "./pokeapi.js";
+
+// Import commands
 import { commandHelp } from "./commands/command_help.js";
 import { commandMap } from "./commands/command_map.js";
 import { commandExplore } from "./commands/command_explore.js";
-import { commandExit } from "./commands/command_exit.js";
 import { commandCatch } from "./commands/command_catch.js";
+import { commandInspect } from "./commands/command_inspect.js";
+import { commandPokedex } from "./commands/command_pokedex.js";
+import { commandExit } from "./commands/command_exit.js";
 
 export type CLICommand = {
 	name: string;
@@ -17,9 +23,10 @@ export type CLICommand = {
 
 export type State = {
 	commands: Record<string, CLICommand>;
+	pokedex: Record<string, Pokemon>;
+	pokeapi: PokeAPI;
 	rl: Interface;
 	wl: (line?: string) => void;
-	pokeapi: PokeAPI;
 	_cache: Cache;
 	_axios: AxiosCacheInstance;
 }
@@ -28,6 +35,7 @@ export function initState(stdin: NodeJS.ReadableStream = process.stdin, stout: N
 	const axios = setupCache(Axios.create());
 	const cache = new Cache();
 	return {
+		pokedex: {},
 		commands: {
 			help: {
 				name: "help",
@@ -47,12 +55,22 @@ export function initState(stdin: NodeJS.ReadableStream = process.stdin, stout: N
 			explore: {
 				name: "explore",
 				description: "Explore a location area",
-				callback: (state, idname) => commandExplore(state, idname)
+				callback: commandExplore
 			},
 			catch: {
 				name: "catch",
 				description: "Catch a Pokémon",
-				callback: (state, idname) => commandCatch(state, idname)4
+				callback: commandCatch
+			},
+			inspect: {
+				name: "inspect",
+				description: "Inspect a Pokémon",
+				callback: commandInspect
+			},
+			pokedex: {
+				name: "pokedex",
+				description: "Display the Pokédex",
+				callback: commandPokedex
 			},
 			exit: {
 				name: "exit",

@@ -10,48 +10,47 @@ describe("commandCatch", () => {
 	// Setup
 	beforeEach(() => {
 		mockWriteLine = vi.fn();
-		mockPokeAPI = {
-			getPokemon: vi.fn(),
-		};
+		mockPokeAPI = { getPokemon: vi.fn() };
 
 		mockState = {
 			wl: mockWriteLine,
+			pokedex: {} as any,
 			pokeapi: mockPokeAPI as any,
 			rl: vi.fn() as any,
 			_cache: {} as any,
 			_axios: {} as any,
-			commands: {} as any,
+			commands: {} as any
 		};
 	});
 
 	test("should write success message when Pokémon is caught", async () => {
 		// Setup
-		const mockPokemon = { name: "Pikachu" };
+		const mockPokemon = { name: "pikachu" };
 		mockPokeAPI.getPokemon.mockResolvedValue(mockPokemon);
 		vi.spyOn(Math, "random").mockReturnValue(0.6);
 
 		// Execution
-		await commandCatch(mockState, "Pikachu");
+		await commandCatch(mockState, mockPokemon.name);
 
 		// Assertions
-		expect(mockPokeAPI.getPokemon).toHaveBeenCalledWith("pikachu");
-		expect(mockWriteLine).toHaveBeenCalledWith("Throwing a Pokéball at Pikachu...");
-		expect(mockWriteLine).toHaveBeenCalledWith("Pikachu was caught!");
+		expect(mockPokeAPI.getPokemon).toHaveBeenCalledWith(mockPokemon.name);
+		expect(mockWriteLine).toHaveBeenCalledWith(`Throwing a Pokéball at ${mockPokemon.name}...`);
+		expect(mockWriteLine).toHaveBeenCalledWith(`${mockPokemon.name} was caught!`);
 	});
 
 	test("should write escape message when Pokémon escapes", async () => {
 		// Setup
-		const mockPokemon = { name: "Bulbasaur" };
+		const mockPokemon = { name: "bulbasaur" };
 		mockPokeAPI.getPokemon.mockResolvedValue(mockPokemon);
 		vi.spyOn(Math, "random").mockReturnValue(0.4);
 
 		// Execution
-		await commandCatch(mockState, "Bulbasaur");
+		await commandCatch(mockState, mockPokemon.name);
 
 		// Assertions
-		expect(mockPokeAPI.getPokemon).toHaveBeenCalledWith("bulbasaur");
-		expect(mockWriteLine).toHaveBeenCalledWith("Throwing a Pokéball at Bulbasaur...");
-		expect(mockWriteLine).toHaveBeenCalledWith("Bulbasaur escaped!");
+		expect(mockPokeAPI.getPokemon).toHaveBeenCalledWith(mockPokemon.name);
+		expect(mockWriteLine).toHaveBeenCalledWith(`Throwing a Pokéball at ${mockPokemon.name}...`);
+		expect(mockWriteLine).toHaveBeenCalledWith(`${mockPokemon.name} escaped!`);
 	});
 
 	test("should handle invalid Pokémon name gracefully", async () => {
@@ -69,32 +68,45 @@ describe("commandCatch", () => {
 
 	test("should handle mixed case Pokémon names correctly", async () => {
 		// Setup
-		const mockPokemon = { name: "Charmander" };
+		const mockPokemon = { name: "charmander" };
 		mockPokeAPI.getPokemon.mockResolvedValue(mockPokemon);
 
 		// Execution
 		await commandCatch(mockState, "cHaRmAnDeR");
 
 		// Assertions
-		expect(mockPokeAPI.getPokemon).toHaveBeenCalledWith("charmander");
-		expect(mockWriteLine).toHaveBeenCalledWith("Throwing a Pokéball at Charmander...");
+		expect(mockPokeAPI.getPokemon).toHaveBeenCalledWith(mockPokemon.name);
+		expect(mockWriteLine).toHaveBeenCalledWith(`Throwing a Pokéball at ${mockPokemon.name}...`);
 	});
 
 	test("should write success or escape message randomly for repeated calls", async () => {
 		// Setup
-		const mockPokemon = { name: "Squirtle" };
+		const mockPokemon = { name: "squirtle" };
 		mockPokeAPI.getPokemon.mockResolvedValue(mockPokemon);
 
 		// Execution
-		await commandCatch(mockState, "Squirtle");
+		await commandCatch(mockState, mockPokemon.name);
 
 		// Assertions
-		expect(mockPokeAPI.getPokemon).toHaveBeenCalledWith("squirtle");
-		expect(mockWriteLine).toHaveBeenCalledWith("Throwing a Pokéball at Squirtle...");
+		expect(mockPokeAPI.getPokemon).toHaveBeenCalledWith(mockPokemon.name);
+		expect(mockWriteLine).toHaveBeenCalledWith(`Throwing a Pokéball at ${mockPokemon.name}...`);
 		expect(
 			mockWriteLine.mock.calls.some(
-				(call) => call[0] === "Squirtle was caught!" || call[0] === "Squirtle escaped!"
+				(call) => call[0] === `${mockPokemon.name} was caught!` || call[0] === `${mockPokemon.name} escaped!`
 			)
 		).toBeTruthy();
+	});
+
+	test("should save Pokémon to Pokédex when caught", async () => {
+		// Setup
+		const mockPokemon = { name: "pikachu" };
+		mockPokeAPI.getPokemon.mockResolvedValue(mockPokemon);
+		vi.spyOn(Math, "random").mockReturnValue(0.6);
+
+		// Execution
+		await commandCatch(mockState, mockPokemon.name);
+
+		// Assertions
+		expect(mockState.pokedex[mockPokemon.name]).toEqual(mockPokemon);
 	});
 });
