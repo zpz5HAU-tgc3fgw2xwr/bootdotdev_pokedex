@@ -32,7 +32,7 @@ describe("commandMap", () => {
 		await commandMap(mockState);
 
 		// Assertions
-		expect(mockPokeAPI.getLocationAreas).toHaveBeenCalledWith("", false);
+		expect(mockPokeAPI.getLocationAreas).toHaveBeenCalledWith(false);
 		expect(mockWriteLine).toHaveBeenCalledWith("No locations found.");
 		expect(mockWriteLine).toHaveBeenCalledTimes(1);
 	});
@@ -46,7 +46,7 @@ describe("commandMap", () => {
 		await commandMap(mockState);
 
 		// Assertions
-		expect(mockPokeAPI.getLocationAreas).toHaveBeenCalledWith("", false);
+		expect(mockPokeAPI.getLocationAreas).toHaveBeenCalledWith(false);
 		expect(mockWriteLine).toHaveBeenCalledWith("area1");
 		expect(mockWriteLine).toHaveBeenCalledWith("area2");
 		expect(mockWriteLine).toHaveBeenCalledTimes(2);
@@ -55,16 +55,17 @@ describe("commandMap", () => {
 	test("should write a single location area name if not an array", async () => {
 		// Setup
 		const locationArea = { name: "singleArea" };
-		mockPokeAPI.getLocationAreas.mockResolvedValue(locationArea);
-
+		mockPokeAPI.getLocationAreas.mockResolvedValue([locationArea]);
+	
 		// Execution
 		await commandMap(mockState);
-
+	
 		// Assertions
-		expect(mockPokeAPI.getLocationAreas).toHaveBeenCalledWith("", false);
+		expect(mockPokeAPI.getLocationAreas).toHaveBeenCalledWith(false);
 		expect(mockWriteLine).toHaveBeenCalledWith("singleArea");
 		expect(mockWriteLine).toHaveBeenCalledTimes(1);
 	});
+	
 
 	test("should handle backward navigation when back is true", async () => {
 		// Setup
@@ -75,7 +76,7 @@ describe("commandMap", () => {
 		await commandMap(mockState, true);
 
 		// Assertions
-		expect(mockPokeAPI.getLocationAreas).toHaveBeenCalledWith("", true);
+		expect(mockPokeAPI.getLocationAreas).toHaveBeenCalledWith(true);
 		expect(mockWriteLine).toHaveBeenCalledWith("area3");
 		expect(mockWriteLine).toHaveBeenCalledWith("area4");
 		expect(mockWriteLine).toHaveBeenCalledTimes(2);

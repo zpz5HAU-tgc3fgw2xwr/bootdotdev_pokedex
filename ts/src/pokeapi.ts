@@ -1,5 +1,5 @@
 import { AxiosCacheInstance } from "axios-cache-interceptor";
-import { Location, LocationArea } from "pokenode-ts";
+import { Location, LocationArea, Pokemon } from "pokenode-ts";
 import { Cache } from "./cache";
 
 export class PokeAPI {
@@ -9,7 +9,7 @@ export class PokeAPI {
 	private readonly axios: AxiosCacheInstance;
 	private readonly cache: Cache;
 
-	private static readonly paginationConstructor = (index: number) => `?limit=${PokeAPI.limit}&offset=${PokeAPI.limit * index}`;
+	private static readonly paginationConstructor = (index = 0) => `?limit=${PokeAPI.limit}&offset=${PokeAPI.limit * index}`;
 
 	constructor(axios: AxiosCacheInstance, cache: Cache) {
 		this.axios = axios;
@@ -53,11 +53,23 @@ export class PokeAPI {
 	async getLocationArea(idname: number | string = ""): Promise<LocationArea> {
 		if (typeof idname === "number" && idname < 0) { idname = 0; }
 
-		const cacheKey = `locationArea_${idname}`;
+		const id = idname.toString().replace(/[^a-zA-Z0-9-]/g, "").toLowerCase();
+		const cacheKey = `locationArea_${id}`;
 		const cachedData = this.cache.get(cacheKey) as LocationArea;
 		if (cachedData) { return cachedData; }
 
-		return this.axios.get(`${PokeAPI.baseURL}/location-area/${idname}${PokeAPI.paginationConstructor(0)}`)
+		return this.axios.get(`${PokeAPI.baseURL}/location-area/${id}${PokeAPI.paginationConstructor()}`)
+			.then(response => this.cache.add(cacheKey, response.data))
+			.catch(error => Promise.reject(error));
+	}
+
+	async getPokemon(idname: string | number): Promise<Pokemon> {
+		const id = idname.toString().replace(/[^a-zA-Z0-9-]/g, "").toLowerCase();
+		const cacheKey = `pokemon_${id}`;
+		const cachedData = this.cache.get(cacheKey) as Pokemon;
+		if (cachedData) { return cachedData; }
+
+		return this.axios.get(`${PokeAPI.baseURL}/pokemon/${id}${PokeAPI.paginationConstructor()}`)
 			.then(response => this.cache.add(cacheKey, response.data))
 			.catch(error => Promise.reject(error));
 	}

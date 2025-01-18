@@ -3,45 +3,51 @@ import { Cache } from "./cache";
 
 describe("Cache", () => {
 	let cache: Cache;
+	let currentTime: number;
 	const testKey = "testKey";
 	const testValue = { data: "testValue" };
 	const reapInterval = 100;
 
+	// Mock time provider
+	const mockGetTime = () => currentTime;
+
 	// Setup
-	beforeEach(() => { cache = new Cache(reapInterval); });
-	afterEach(() => { cache.stopReapLoop(); });
+	beforeEach(() => {
+		currentTime = 0;
+		cache = new Cache(reapInterval, mockGetTime);
+	});
+	afterEach(() => {
+		cache.stopReapLoop();
+	});
 
 	test("should add and retrieve an item", () => {
-		// Execution
 		cache.add(testKey, testValue);
-		const result = cache.get(testKey);
-
-		// Assertions
-		expect(result).toEqual(testValue);
+		expect(cache.get(testKey)).toEqual(testValue);
 	});
 
 	test("should return undefined for non-existent keys", () => {
-		// Assertions
 		expect(cache.get("nonExistentKey")).toBeUndefined();
 	});
 
-	test("should remove expired items after the reap interval", async () => {
+	test("should remove expired items after the reap interval", () => {
 		// Setup
 		cache.add(testKey, testValue);
-	
-		// Execution
-		await new Promise((resolve) => setTimeout(resolve, reapInterval + 100));
-	
+		currentTime += reapInterval + 1;
+
+		// Execution: Force reap
+		cache.testReap();
+
 		// Assertions
 		expect(cache.get(testKey)).toBeUndefined();
 	});
 
-	test("should not remove items before the reap interval", async () => {
+	test("should not remove items before the reap interval", () => {
 		// Setup
 		cache.add(testKey, testValue);
+		currentTime += reapInterval - 1;
 
-		// Execution
-		await new Promise((resolve) => setTimeout(resolve, reapInterval - 50));
+		// Execution: Force reap
+		cache.testReap();
 
 		// Assertions
 		expect(cache.get(testKey)).toEqual(testValue);

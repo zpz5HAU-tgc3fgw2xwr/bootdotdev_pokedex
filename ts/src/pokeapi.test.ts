@@ -237,4 +237,68 @@ describe("PokeAPI", () => {
 			expect(result).toEqual(cachedData);
 		});
 	});
+
+	describe("getPokemon", () => {
+		test("should return cached Pokémon data if available", async () => {
+			// Setup
+			const cachedData = { name: "pikachu" };
+			const cacheKey = "pokemon_pikachu";
+	
+			mockCache.get.mockReturnValueOnce(cachedData);
+	
+			// Execution
+			const result = await pokeAPI.getPokemon("pikachu");
+	
+			// Assertions
+			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
+			expect(mockAxios.get).not.toHaveBeenCalled();
+			expect(mockCache.add).not.toHaveBeenCalled();
+			expect(result).toEqual(cachedData);
+		});
+	
+		test("should fetch Pokémon data from API if not cached", async () => {
+			// Setup
+			const apiResponse = { name: "bulbasaur" };
+			const cacheKey = "pokemon_bulbasaur";
+	
+			mockCache.get.mockReturnValueOnce(null);
+			mockAxios.get.mockResolvedValueOnce({ data: apiResponse });
+	
+			// Execution
+			const result = await pokeAPI.getPokemon("bulbasaur");
+	
+			// Assertions
+			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
+			expect(mockAxios.get).toHaveBeenCalledWith(
+				"https://pokeapi.co/api/v2/pokemon/bulbasaur?limit=20&offset=0"
+			);
+			expect(mockCache.add).toHaveBeenCalledWith(cacheKey, apiResponse);
+			expect(result).toEqual(apiResponse);
+		});
+	
+		test("should handle API errors gracefully", async () => {
+			// Setup
+			const cacheKey = "pokemon_invalidpokemon";
+			mockCache.get.mockReturnValueOnce(null);
+			mockAxios.get.mockRejectedValueOnce(new Error("API Error"));
+	
+			// Execution
+			let error: Error | undefined;
+			try {
+				await pokeAPI.getPokemon("invalidPokemon");
+			} catch (e) {
+				if (e instanceof Error) {
+					error = e;
+				}
+			}
+	
+			// Assertions
+			expect(mockCache.get).toHaveBeenCalledWith(cacheKey);
+			expect(mockAxios.get).toHaveBeenCalledWith("https://pokeapi.co/api/v2/pokemon/invalidpokemon?limit=20&offset=0");
+			expect(mockCache.add).not.toHaveBeenCalled();
+			expect(error).toBeInstanceOf(Error);
+			expect(error?.message).toBe("API Error");
+		});
+	});
+	
 });
